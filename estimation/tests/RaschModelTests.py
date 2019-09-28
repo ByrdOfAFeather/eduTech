@@ -7,7 +7,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 import tensorflow as tf
 import pandas as pd
-from estimation.RaschModel import RaschModel
+from estimation.RaschModel import PL1RaschEstimator, PL2RaschEstimator, PL3RaschEstimator
 
 
 class TestCase1:
@@ -30,10 +30,15 @@ class TestCase1:
 
 	def run(self):
 		results = self.load_data()
-		tester = RaschModel()
-		tester.fit(results, epochs=1000)
-		student_abilities, question_dificulties = tester.get_model_descriptors()
-		print(question_dificulties)
+		tester = PL2RaschEstimator()
+		tester.fit(results, epochs=10000)
+		model_params = tester.get_model_descriptors()
+		for params in model_params:
+			print(params)
+
+
+NUMBER_OF_STUDENTS = 500
+NUMBER_OF_QUESTIONS = 10
 
 
 class HelperFunction:
@@ -56,4 +61,5 @@ class HelperFunction:
 		return results
 
 
-
+test_run = TestCase1()
+test_run.run()
