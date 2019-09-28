@@ -69,7 +69,7 @@ class _RaschModel:
 		self.student_abilities = tf.cast(tf.Variable(tf.zeros(shape=[testing_data.shape[0], 1])), "float32")
 		self.student_abilities.assign((np.sum(testing_data, axis=1) / testing_data.shape[1]).values.reshape([testing_data.shape[0], 1]))
 		self.questions_difficulties = tf.Variable(tf.random.normal(shape=[1, testing_data.shape[1]]),
-		                                          constraint=lambda x: tf.clip_by_value(x, 0, np.Inf))
+		                                          constraint=lambda x: tf.clip_by_value(x, 0.1, np.Inf))
 		self.results = tf.cast(tf.Variable(testing_data.values), "float32")
 
 		loss = None

@@ -30,11 +30,16 @@ class TestCase1:
 
 	def run(self):
 		results = self.load_data()
-		tester = PL2RaschEstimator()
+		tester = PL1RaschEstimator()
 		tester.fit(results, epochs=10000)
-		model_params = tester.get_model_descriptors()
-		for params in model_params:
-			print(params)
+		_, question_diff = tester.get_model_descriptors()
+		original_index = question_diff.argsort()[0]
+		test_case = [1.6581, .9818, .7499, .8495, .2482, .7677, .3528, .6794, .7499, 2.3978]
+		test_index = np.argsort(test_case)
+		print(question_diff)
+		for i, indexes in enumerate(original_index):
+			print(f"Got through {i}")
+			assert indexes == test_index[i], f"Values aren't in the right order! {indexes} and {test_index[i]} don't match"
 
 
 NUMBER_OF_STUDENTS = 500
