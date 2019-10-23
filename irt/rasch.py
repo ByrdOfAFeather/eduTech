@@ -40,11 +40,14 @@ class RaschModel:
 		return tf.reduce_sum(truths * tf.math.log(predictions) + (1 - truths) * tf.math.log(1 - predictions))
 
 	@staticmethod
-	def predict(batch_students: Union[tf.Tensor, np.array], batch_questions: Union[tf.Tensor, np.array]) -> tf.Tensor:
+	def predict(batch_students: Union[tf.Tensor, np.array], batch_questions: Union[tf.Tensor, np.array],
+	            **kwargs) -> tf.Tensor:
 		"""Returns the current prediction for given students and questions
 		NOTE: This will return a #S by #Q matrix when #S != #Q
 		:param batch_students: An array-like object representing the batch of student abilities
 		:param batch_questions: An array-like object representing the batch of question difficulties
+		:param kwargs: In the case of the base Rasch model this will be unused, modifications to the Rasch model will
+					   implement these parameters.
 		:return: A sigmoid result of (S_I - Q_J) done element wise
 		"""
 		return tf.sigmoid(batch_students - batch_questions)
@@ -67,12 +70,14 @@ class RaschModel:
 		"""
 		return -tf.reduce_sum(self.results - predictions, axis=0, keepdims=True)
 
-	def _train(self, calc_loss=False):
+	def _train(self, calc_loss=False, **kwargs):
 		"""Computes and applies gradients
 		:param calc_loss: boolean indicating if the loss is supposed to be calculated and returned
+		:param kwargs: This parameter is to make modified Rasch model implementation easier. These can vary from model
+						to model, for a good example see the JAGRaschModel in eduTech.grading.JAG
 		:return: The current loss at the time of calculation or None
 		"""
-		predictions = self.predict(self.student_abilities, self.questions_difficulties)
+		predictions = self.predict(self.student_abilities, self.questions_difficulties, **kwargs)
 
 		grad_student_ability = self.learning_rate * self._calc_deriv_student_ability(predictions)
 		# Gradient Normalization (reduces overstepping)

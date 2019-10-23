@@ -12,4 +12,4 @@
 *.rar
 hs_err_pid*
 *.sqlite3
-irt/tests/ouirt.txt
+*/tests/ouirt.txt
