@@ -13,3 +13,6 @@
 hs_err_pid*
 *.sqlite3
 */tests/ouirt.txt
+
+*/squad_train_set/
+*/data/
