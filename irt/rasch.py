@@ -5,7 +5,7 @@ Implementation of Rasch Model
 """
 import pandas as pd
 import numpy as np
-import tensorflow as tf
+import torch
 from typing import Union, Tuple
 
 
@@ -37,11 +37,11 @@ class RaschModel:
 		:param truths: A Tensor representing the current truth values for which questions were correctly answered
 		:return: A [1, 1] Tensor containing the loss value as given by the negative log likelihood function
 		"""
-		return tf.reduce_sum(truths * tf.math.log(predictions) + (1 - truths) * tf.math.log(1 - predictions))
+		return torch.sum(truths * torch.log(predictions) + (1 - truths) * torch.log(1 - predictions))
 
 	@staticmethod
-	def predict(batch_students: Union[tf.Tensor, np.array], batch_questions: Union[tf.Tensor, np.array],
-	            **kwargs) -> tf.Tensor:
+	def predict(batch_students: Union[torch.Tensor, np.array], batch_questions: Union[torch.Tensor, np.array],
+	            **kwargs) -> torch.Tensor:
 		"""Returns the current prediction for given students and questions
 		NOTE: This will return a #S by #Q matrix when #S != #Q
 		:param batch_students: An array-like object representing the batch of student abilities
@@ -50,16 +50,16 @@ class RaschModel:
 					   implement these parameters.
 		:return: A sigmoid result of (S_I - Q_J) done element wise
 		"""
-		return tf.sigmoid(batch_students - batch_questions)
+		return torch.sigmoid(batch_students - batch_questions)
 
-	def _calc_deriv_student_ability(self, predictions: tf.Tensor) -> tf.Tensor:
+	def _calc_deriv_student_ability(self, predictions: torch.Tensor) -> torch.Tensor:
 		"""Calculates the derivative in terms of the student abilities
 		Citation:“22.1 The Rasch Model.” Bayesian Reasoning and Machine Learning,
 			by David Barber, University Cambridge Press, 2012, pp. 403–404.
 		:param predictions: A Tensor representing the predictions based on the current parameters of the model
 		:return: A Sx1 matrix representing the current gradient in terms of the student abilities
 		"""
-		return tf.reduce_sum(self.results - predictions, axis=1, keepdims=True)
+		return torch.sum(self.results - predictions)
 
 	def _calc_deriv_question_difficulty(self, predictions):
 		"""Calculates the derivative in terms of the question difficulties
@@ -68,7 +68,7 @@ class RaschModel:
 		:param predictions: A Tensor representing the predictions based on the current parameters of the model
 		:return: A 1xQ matrix representing the current gradient in terms of the question difficulties
 		"""
-		return -tf.reduce_sum(self.results - predictions, axis=0, keepdims=True)
+		return -torch.sum(self.results - predictions)
 
 	def _train(self, calc_loss=False, **kwargs):
 		"""Computes and applies gradients
@@ -101,9 +101,9 @@ class RaschModel:
 		:param epochs: The number of iterations to train for
 		:return: None
 		"""
-		self.student_abilities = tf.cast(tf.Variable(tf.zeros(shape=[testing_data.shape[0], 1])), "float32")
-		self.questions_difficulties = tf.Variable(tf.zeros(shape=[1, testing_data.shape[1]]))
-		self.results = tf.cast(tf.Variable(testing_data.values), "float32")
+		self.student_abilities = torch.zeros([testing_data.shape[0], 1])
+		self.questions_difficulties = torch.zeros([1, testing_data.shape[1]])
+		self.results = torch.tensor(testing_data.values)
 
 		loss = None
 		for _ in range(0, epochs):
