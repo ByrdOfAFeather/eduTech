@@ -4,7 +4,7 @@ https://www.aaai.org/ocs/index.php/AAAI/AAAI17/paper/download/14786/13874
 """
 import tensorflow as tf
 import pandas as pd
-from irt.rasch import RaschModel
+from irt._irt_models import RaschModel
 
 
 class JAGRachModel(RaschModel):
